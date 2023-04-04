@@ -11,6 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'role']
 
 
+# ---------- SignUp user ---------------
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
