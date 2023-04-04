@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import ValidationError
+
 
 User = get_user_model()
 
@@ -25,3 +27,32 @@ class UserSignupSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+# ============================================================================
+# Reset Password
+# ============================================================================
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email_exists = User.objects.filter(email=attrs["email"]).exists()
+        if email_exists == False:
+            raise ValidationError({"message": "Email does not exist"})
+        return super().validate(attrs)
+
+
+class VerifyOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField()
+
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8)
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email_exists = User.objects.filter(email=attrs["email"]).exists()
+        if email_exists == False:
+            raise ValidationError({"message": "Email does not exist"})
+        return super().validate(attrs)
