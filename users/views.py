@@ -1,8 +1,8 @@
 from .serializer import (UserSerializer, UserSignupSerializer,
                          PasswordSerializer, ResetPasswordSerializer, VerifyOtpSerializer)
-from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework import generics, permissions, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +11,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.hashers import make_password
 from .email_send import send_otp_via_email
 from django.shortcuts import get_object_or_404
-
+from rest_framework.authentication import SessionAuthentication
 
 User = get_user_model()
 
@@ -40,7 +40,10 @@ class UserSignupView(generics.CreateAPIView):
 
 
 # ----- Login ------
-class UserLoginView(ObtainAuthToken):
+class UserLoginView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [AllowAny]
+
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -58,6 +61,7 @@ class UserLoginView(ObtainAuthToken):
 
 class UserProfile(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request):
         user = request.user
