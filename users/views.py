@@ -7,7 +7,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import User
-from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.hashers import make_password
 from .email_send import send_otp_via_email
 from django.shortcuts import get_object_or_404

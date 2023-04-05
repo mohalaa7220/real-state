@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class Product(models.Model):
@@ -11,9 +12,12 @@ class Product(models.Model):
     state = models.CharField(max_length=10, choices=(
         ('rent', 'Rent'), ('sale', 'Sale')))
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    features = models.TextField()
-    amenities = models.TextField()
-    images = models.ManyToManyField('ProductImage')
+    features = ArrayField(models.CharField(max_length=100))
+    amenities = ArrayField(models.CharField(max_length=100))
+    images = models.ManyToManyField('ProductImage', related_name='images')
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class ProductImage(models.Model):
