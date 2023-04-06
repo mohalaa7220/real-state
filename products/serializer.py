@@ -1,35 +1,32 @@
 # serializers.py
 
-from .models import Product, ProductImage
+from .models import Product
 from rest_framework import serializers
-
-
-class ProductImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductImage
-        fields = ['id', 'image']
 
 
 class AddProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms',
-                  'square', 'state', 'price', 'features', 'amenities', 'images')
+        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+                  'square', 'state', 'price', 'features', 'amenities', 'original_image')
 
     def create(self, validated_data):
-        images = validated_data.pop('images', [])
         product = Product.objects.create(**validated_data)
-        for image_data in images:
-            product.images.add(image_data)
         product.save()
         return product
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+    thumbnail_images = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms',
-                  'square', 'state', 'price', 'features', 'amenities', 'images')
+        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+                  'square', 'state', 'price', 'features', 'amenities', 'original_image')
+
+    def get_thumbnail_images(self, obj):
+        if obj.thumbnail_images:
+            return obj.thumbnail_images
+        else:
+            return []
