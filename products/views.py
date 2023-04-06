@@ -1,23 +1,25 @@
 from .serializer import (ProductSerializer, AddProductSerializer)
-from rest_framework import generics, permissions, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from .models import Product
+from rest_framework import status
 
 
-class Product(generics.ListCreateAPIView):
+class Products(ListCreateAPIView):
     serializer_class = AddProductSerializer
-    queryset = Product.objects.all()
+    pagination_class = PageNumberPagination
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Product add successfully"}, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "Product added successfully"}, status=status.HTTP_201_CREATED)
 
-        else:
-            return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        return Product.objects.prefetch_related('images').all()
 
     def get(self, request):
-        queryset = Product.objects.prefetch_related('images').all()
-        serializer = ProductSerializer(queryset, many=True).data
-        return Response({"data": serializer}, status=status.HTTP_200_OK)
+        paginated_queryset = self.paginate_queryset(self.get_queryset())
+        serializer = ProductSerializer(paginated_queryset, many=True)
+        return self.get_paginated_response(serializer.data)
