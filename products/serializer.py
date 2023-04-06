@@ -21,17 +21,17 @@ class AddProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
-                  'square', 'state', 'price', 'features', 'amenities', 'original_image')
+                  'square', 'state', 'price', 'features', 'amenities', 'original_image', 'added_by')
 
     def create(self, validated_data):
         features_data = validated_data.pop('features', [])
         amenities_data = validated_data.pop('amenities', [])
         product = Product.objects.create(**validated_data)
         for feature_data in features_data:
-            feature = Features.objects.get_or_create(feature_data)[0]
+            feature = Features.objects.get(id=feature_data.id)
             product.features.add(feature)
         for amenity_data in amenities_data:
-            amenity = Amenities.objects.get_or_create(amenity_data)[0]
+            amenity = Amenities.objects.get(id=amenity_data.id)
             product.amenities.add(amenity)
 
         product.save()

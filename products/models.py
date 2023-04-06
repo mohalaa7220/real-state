@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from django.utils.text import slugify
+from users.models import User
 
 
 class Product(models.Model):
+    added_by = models.ForeignKey(
+        User, related_name="user_products", null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     description = models.TextField()
