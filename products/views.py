@@ -17,7 +17,7 @@ class Products(ListCreateAPIView):
         return Response({"message": "Product added successfully"}, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
-        return Product.objects.all()
+        return Product.objects.prefetch_related('features', "amenities").all()
 
     def get(self, request):
         paginated_queryset = self.paginate_queryset(self.get_queryset())

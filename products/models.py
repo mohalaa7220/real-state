@@ -13,11 +13,25 @@ class Product(models.Model):
     state = models.CharField(max_length=10, choices=(
         ('rent', 'rent'), ('sale', 'sale')))
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    features = ArrayField(models.CharField(max_length=100))
-    amenities = ArrayField(models.CharField(max_length=100))
+    features = models.ManyToManyField('Features', related_name='features')
+    amenities = models.ManyToManyField('Amenities', related_name='amenities')
     original_image = models.ImageField(
         upload_to='images', null=True, blank=True)
     thumbnail_images = models.JSONField(null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Amenities(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Features(models.Model):
+    name = models.CharField(max_length=255)
 
     def __str__(self) -> str:
         return self.name
