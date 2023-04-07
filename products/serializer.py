@@ -20,7 +20,7 @@ class AddProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+        fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
                   'square', 'state', 'price', 'features', 'amenities', 'original_image', 'added_by')
 
     def create(self, validated_data):
@@ -53,3 +53,16 @@ class ProductSerializer(serializers.ModelSerializer):
             return obj.thumbnail_images
         else:
             return []
+
+
+class UpdateProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+                  'square', 'state', 'price', 'features', 'amenities', 'original_image')
+
+        def update(self, instance, validated_data):
+            instance.__dict__.update(**validated_data)
+            instance.save()
+            return instance
