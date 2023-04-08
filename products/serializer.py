@@ -46,7 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
-                  'square', 'state', 'price', 'features', 'amenities', 'original_image')
+                  'square', 'state', 'price', 'features', 'amenities', 'original_image', 'created', 'updated')
 
     def get_thumbnail_images(self, obj):
         if obj.thumbnail_images:

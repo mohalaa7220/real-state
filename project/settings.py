@@ -83,8 +83,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
 
-    'PAGE_SIZE': 20,
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
 WSGI_APPLICATION = 'project.wsgi.application'

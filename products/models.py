@@ -20,6 +20,8 @@ class Product(models.Model):
     original_image = models.ImageField(
         upload_to='images', null=True, blank=True)
     thumbnail_images = models.JSONField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
