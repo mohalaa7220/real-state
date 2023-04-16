@@ -1,6 +1,4 @@
-# serializers.py
-
-from .models import Product, Amenities, Features
+from .models import Product, Amenities, Features, BookProduct
 from rest_framework import serializers
 
 
@@ -66,3 +64,17 @@ class UpdateProductSerializer(serializers.ModelSerializer):
             instance.__dict__.update(**validated_data)
             instance.save()
             return instance
+
+
+class BookProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookProduct
+        fields = ['id', 'name', 'email', 'product', 'user']
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        instance.__dict__.update(**validated_data)
+        instance.save()
+        return instance

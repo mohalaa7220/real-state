@@ -1,14 +1,15 @@
 from .serializer import (
-    ProductSerializer, AddProductSerializer, UpdateProductSerializer)
+    ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer)
 from .cursorPagination import ProductCursorPagination
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-from .models import Product
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from .models import Product, BookProduct
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
 
 
+# ------- Get All Product --------------
 class Products(ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
@@ -28,6 +29,7 @@ class Products(ListCreateAPIView):
         return self.get_paginated_response(serializer.data)
 
 
+# ------- Update - Delete Product --------------
 class UpdateProduct(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
@@ -41,16 +43,23 @@ class UpdateProduct(RetrieveUpdateDestroyAPIView):
         return Response({"message": "Product Update successfully"}, status=status.HTTP_202_ACCEPTED)
 
 
+# ------- Get All Product For Admin --------------
 class ProductsUser(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = ProductSerializer
     pagination_class = ProductCursorPagination
 
     def get_queryset(self):
-        return Product.objects.filter(added_by=self.request.user)
+        return Product.objects.prefetch_related('features', 'amenities').filter(added_by=self.request.user)
 
     def get(self, request):
         queryset = self.get_queryset()
         paginated_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+class BookProductView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = BookProductSerializer
+    queryset = BookProduct.objects.select_related('user', 'product').all()

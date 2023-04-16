@@ -39,3 +39,15 @@ class Features(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class BookProduct(models.Model):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=255, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+    user = models.ForeignKey(
+        User, blank=True, null=True, related_name='book_user', on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, blank=True, null=True, related_name='book_product', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)
