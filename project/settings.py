@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     # installed_apps
     "users",
     "products",
+    "order",
 
     # external_apps
     "debug_toolbar",
