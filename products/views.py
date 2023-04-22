@@ -44,7 +44,7 @@ class UpdateProduct(RetrieveUpdateDestroyAPIView):
 
 
 # ------- Get All Product For Admin --------------
-class ProductsUser(RetrieveUpdateDestroyAPIView):
+class ProductsUser(ListCreateAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = ProductSerializer
     pagination_class = ProductCursorPagination
@@ -57,6 +57,12 @@ class ProductsUser(RetrieveUpdateDestroyAPIView):
         paginated_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
+    
+
+class ProductUserDetails(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = ProductSerializer
+    queryset = Product.objects.prefetch_related('features', 'amenities').select_related('added_by')
 
 
 class BookProductView(ListCreateAPIView):
