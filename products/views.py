@@ -9,17 +9,21 @@ from .models import Product, BookProduct
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
 
-from rest_framework.pagination import PageNumberPagination
 
 # ------- Get All Product --------------
-
-
 class Products(ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     pagination_class = ProductsPagination
     queryset = queryset = Product.objects.prefetch_related(
         'features', 'amenities').all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        name = self.request.query_params.get('name', None)
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
 
     def post(self, request, *args, **kwargs):
         serializer = AddProductSerializer(data=request.data)
