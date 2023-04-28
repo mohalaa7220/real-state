@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .models import Product, BookProduct
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
+from django_filters import rest_framework as filters
+from .ProductFilter import ProductFilter
 
 
 # ------- Get All Product --------------
@@ -15,14 +17,13 @@ class Products(ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     pagination_class = ProductsPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = ProductFilter
     queryset = queryset = Product.objects.prefetch_related(
         'features', 'amenities').all()
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        name = self.request.query_params.get('name', None)
-        if name is not None:
-            queryset = queryset.filter(name__icontains=name)
         return queryset
 
     def post(self, request, *args, **kwargs):
@@ -73,3 +74,9 @@ class BookProductView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = BookProductSerializer
     queryset = BookProduct.objects.select_related('user', 'product').all()
+
+
+class LastProductView(ListCreateAPIView):
+    serializer_class = ProductSerializer
+    queryset = queryset = Product.objects.prefetch_related(
+        'features', 'amenities').order_by('-created')[:6]
