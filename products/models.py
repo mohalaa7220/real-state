@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from users.models import User
@@ -54,3 +55,9 @@ class BookProduct(models.Model):
         Product, blank=True, null=True, related_name='book_product', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.message
+
+    class Meta:
+        ordering = ('-created',)

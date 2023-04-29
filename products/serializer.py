@@ -53,6 +53,16 @@ class ProductSerializer(serializers.ModelSerializer):
             return []
 
 
+class SimpleProductSerializer(serializers.ModelSerializer):
+    features = FeatureSerializer(many=True)
+    amenities = AmenitySerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'location', 'description', 'square', 'state',
+                  'price', 'features', 'amenities', 'original_image', 'created', 'updated')
+
+
 class UpdateProductSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -66,10 +76,10 @@ class UpdateProductSerializer(serializers.ModelSerializer):
             return instance
 
 
-class BookProductSerializer(serializers.ModelSerializer):
+class AddBookProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookProduct
-        fields = ['id', 'name', 'email', 'product', 'user']
+        fields = ['name', 'email', 'message']
 
     def create(self, validated_data):
         return super().create(validated_data)
@@ -78,3 +88,12 @@ class BookProductSerializer(serializers.ModelSerializer):
         instance.__dict__.update(**validated_data)
         instance.save()
         return instance
+
+
+class BookProductSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializer()
+
+    class Meta:
+        model = BookProduct
+        fields = ['id', 'name', 'email', 'message',
+                  'product', 'user', 'created', 'updated']
