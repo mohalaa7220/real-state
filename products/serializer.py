@@ -1,5 +1,6 @@
 from .models import Product, Amenities, Features, BookProduct
 from rest_framework import serializers
+from users.serializer import UserSerializer
 
 
 class FeatureSerializer(serializers.ModelSerializer):
@@ -92,6 +93,7 @@ class AddBookProductSerializer(serializers.ModelSerializer):
 
 class BookProductSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = BookProduct
