@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Comments, Product
 from .serializer import AddCommentSerializer, AllCommentsSerializer
 from django.shortcuts import get_object_or_404
@@ -8,7 +8,7 @@ from project.serializer_error import serializer_error
 
 
 class CommentsView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = AllCommentsSerializer
     queryset = Comments.objects.select_related('product', 'user')
 
