@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
-from .models import Comments
+from .models import Comments, Testimonials
+from users.serializer import UserSerializer
 
 
 class AddCommentSerializer(serializers.ModelSerializer):
@@ -29,3 +30,17 @@ class AllCommentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comments
         fields = ['id', 'text', 'rating', 'user', 'created_at', 'updated_at']
+
+
+# Testimonials
+
+class TestimonialsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Testimonials
+        fields = '__all__'
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
