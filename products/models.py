@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable, Optional
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from users.models import User
@@ -37,12 +37,20 @@ class Amenities(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def save(self):
+        self.name = self.name.lower()
+        return super().save()
+
 
 class Features(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self):
+        self.name = self.name.lower()
+        return super().save()
 
 
 class BookProduct(models.Model):
