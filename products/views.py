@@ -1,11 +1,11 @@
 from .serializer import (
-    ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
+    ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer, FeatureSerializer)
 from .cursorPagination import ProductCursorPagination, ProductsPagination
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .models import Product, BookProduct, Amenities
+from .models import (Product, BookProduct, Amenities, Features)
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
 from django_filters import rest_framework as filters
@@ -99,5 +99,11 @@ class LastProductView(ListCreateAPIView):
 
 class AmenitiesView(ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Amenities.objects.all()
     serializer_class = AmenitySerializer
+    queryset = Amenities.objects.all()
+
+
+class FeaturesView(ListCreateAPIView):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = FeatureSerializer
+    queryset = Features.objects.all()

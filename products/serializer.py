@@ -8,11 +8,17 @@ class FeatureSerializer(serializers.ModelSerializer):
         model = Features
         fields = ['id', 'name']
 
+    def create(self, validated_data):
+        return super().create(validated_data)
+
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenities
         fields = ['id', 'name']
+
+    def create(self, validated_data):
+        return super().create(validated_data)
 
 
 class AddProductSerializer(serializers.ModelSerializer):

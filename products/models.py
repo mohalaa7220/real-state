@@ -37,9 +37,9 @@ class Amenities(models.Model):
     def __str__(self) -> str:
         return self.name
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.name = self.name.lower()
-        return super().save()
+        return super().save(*args, **kwargs)
 
 
 class Features(models.Model):
@@ -48,9 +48,9 @@ class Features(models.Model):
     def __str__(self) -> str:
         return self.name
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.name = self.name.lower()
-        return super().save()
+        return super().save(*args, **kwargs)
 
 
 class BookProduct(models.Model):
