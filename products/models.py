@@ -1,6 +1,4 @@
-from typing import Any, Iterable, Optional
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from users.models import User
 
 
@@ -16,7 +14,6 @@ class Product(models.Model):
     state = models.CharField(max_length=10, choices=(
         ('rent', 'rent'), ('sale', 'sale')))
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    features = models.ManyToManyField('Features', related_name='features')
     amenities = models.ManyToManyField('Amenities', related_name='amenities')
     original_image = models.ImageField(
         upload_to='images', null=True, blank=True)
@@ -32,17 +29,6 @@ class Product(models.Model):
 
 
 class Amenities(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self) -> str:
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.name = self.name.lower()
-        return super().save(*args, **kwargs)
-
-
-class Features(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self) -> str:

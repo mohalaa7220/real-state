@@ -61,10 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     # this field we inherit from PermissionsMixin.
     is_superuser = models.BooleanField(default=False)
-
-    is_doctor = models.BooleanField(default=False)
-    is_nurse = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    is_guest = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -77,4 +74,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return self.email
+        return self.name

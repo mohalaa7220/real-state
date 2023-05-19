@@ -8,11 +8,10 @@ class ProductFilter(filters.FilterSet):
     max_price = filters.NumberFilter(field_name='price', lookup_expr='lte')
     state = filters.CharFilter(field_name='state', lookup_expr='icontains')
     amenities = filters.CharFilter(method='filter_amenities')
-    features = filters.CharFilter(method='filter_features')
 
     class Meta:
         model = Product
-        fields = ['name', 'min_price', 'max_price', 'state', 'features',]
+        fields = ['name', 'min_price', 'max_price', 'state',]
 
     def filter_amenities(self, queryset, name, value):
         if value:
@@ -20,10 +19,3 @@ class ProductFilter(filters.FilterSet):
             for amenity in amenities:
                 queryset = queryset.filter(amenities__name=amenity)
         return queryset
-
-    def filter_features(self, queryset, name, value):
-        if value:
-            features = value.split(',')
-            for feature in features:
-                queryset = queryset.filter(features__name=feature)
-            return queryset

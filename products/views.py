@@ -1,11 +1,11 @@
 from .serializer import (
-    ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer, FeatureSerializer)
+    ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
 from .cursorPagination import ProductCursorPagination, ProductsPagination
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .models import (Product, BookProduct, Amenities, Features)
+from .models import (Product, BookProduct, Amenities)
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
 from django_filters import rest_framework as filters
@@ -21,8 +21,7 @@ class Products(ListCreateAPIView):
     pagination_class = ProductsPagination
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = ProductFilter
-    queryset = queryset = Product.objects.prefetch_related(
-        'features', 'amenities').all()
+    queryset = queryset = Product.objects.prefetch_related('amenities').all()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -39,7 +38,7 @@ class Products(ListCreateAPIView):
 class UpdateProduct(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
-    queryset = Product.objects.prefetch_related('features', 'amenities').all()
+    queryset = Product.objects.prefetch_related('amenities').all()
 
     def update(self, request, pk=None):
         product = self.get_object()
@@ -56,7 +55,7 @@ class ProductsUser(ListCreateAPIView):
     pagination_class = ProductCursorPagination
 
     def get_queryset(self):
-        return Product.objects.prefetch_related('features', 'amenities').filter(added_by=self.request.user)
+        return Product.objects.prefetch_related('amenities').filter(added_by=self.request.user)
 
     def get(self, request):
         queryset = self.get_queryset()
@@ -69,7 +68,7 @@ class ProductUserDetails(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = ProductSerializer
     queryset = Product.objects.prefetch_related(
-        'features', 'amenities').select_related('added_by')
+        'amenities').select_related('added_by')
 
 
 class AddBookProductView(APIView):
@@ -94,16 +93,10 @@ class BookProducts(ListCreateAPIView):
 class LastProductView(ListCreateAPIView):
     serializer_class = ProductSerializer
     queryset = queryset = Product.objects.prefetch_related(
-        'features', 'amenities').order_by('-created')[:6]
+        'amenities').order_by('-created')[:6]
 
 
 class AmenitiesView(ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = AmenitySerializer
     queryset = Amenities.objects.all()
-
-
-class FeaturesView(ListCreateAPIView):
-    permission_classes = [IsAdminOrReadOnly]
-    serializer_class = FeatureSerializer
-    queryset = Features.objects.all()
