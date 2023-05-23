@@ -1,21 +1,21 @@
-from rest_framework import views
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import OrderItem
-from .serializer import OrderSerializer
-from products.models import Product
+from .serializer import OrderItemSerializer, SimpleOrderItemSerializer
 
 
-class checkout(views.APIView):
-    serializer_class = OrderSerializer
+class OrderItemListCreateView(generics.ListCreateAPIView):
+    serializer_class = OrderItemSerializer
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            order = serializer.save()
-            for item in request.data['items']:
-                product = Product.objects.get(pk=item['product'])
-                OrderItem.objects.create(
-                    order=order, product=product, quantity=item['quantity'], price=product.price)
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        return OrderItem.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class OrderItemAdmin(generics.ListAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = SimpleOrderItemSerializer
+    queryset = OrderItem.objects.select_related('user', 'product').all()

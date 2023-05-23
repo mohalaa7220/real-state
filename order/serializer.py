@@ -1,16 +1,19 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import OrderItem
+from users.serializer import UserSerializer
+from products.serializer import SimpleProductOrderItemSerializer
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = '__all__'
+        exclude = ('user', )
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+class SimpleOrderItemSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    product = SimpleProductOrderItemSerializer(read_only=True)
 
     class Meta:
-        model = Order
+        model = OrderItem
         fields = '__all__'

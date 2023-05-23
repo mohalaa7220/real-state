@@ -55,6 +55,12 @@ class SimpleProductSerializer(serializers.ModelSerializer):
                   'price', 'amenities', 'original_image', 'created', 'updated')
 
 
+class SimpleProductOrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'location', 'square', 'state')
+
+
 class UpdateProductSerializer(serializers.ModelSerializer):
 
     class Meta:
