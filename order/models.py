@@ -6,8 +6,8 @@ from users.models import User
 class OrderItem(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_order_items', blank=True, null=True)
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name='product_order_items', blank=True, null=True)
+    product = models.ManyToManyField(
+        Product,  related_name='product_order_items')
     quantity = models.PositiveIntegerField(default=1)
     address = models.CharField(default=1)
     address = models.CharField(default=1)
@@ -21,4 +21,6 @@ class OrderItem(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.product} x{self.quantity} ({self.user.name})'
+        product_names = ', '.join(
+            [product.name for product in self.product.all()])
+        return f'{product_names} x{self.quantity} => [{self.user}]'
