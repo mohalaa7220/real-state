@@ -14,6 +14,7 @@ class OrderItem(models.Model):
     town = models.CharField(default=1)
     country = models.CharField(default=1)
     zip = models.CharField(default=1)
+    total_price = models.CharField(default=1)
     order_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
