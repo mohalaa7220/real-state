@@ -45,7 +45,7 @@ class TestimonialsUser(views.APIView):
         return Response(serializer, status=status.HTTP_200_OK)
 
 
-class OnlyTestimonialUser(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+class DetailsTestimonialUser(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Testimonials.objects.select_related("user").all()
     serializer_class = TestimonialsSerializer
