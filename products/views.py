@@ -1,18 +1,38 @@
 from .serializer import (
     ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
-from .cursorPagination import ProductCursorPagination, ProductsPagination
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from .cursorPagination import (ProductCursorPagination, ProductsPagination)
+from rest_framework.generics import (
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import (IsAdminUser, IsAuthenticated)
 from .models import (Product, BookProduct, Amenities)
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status
 from django_filters import rest_framework as filters
 from .ProductFilter import ProductFilter
 from django.shortcuts import get_object_or_404
+import qrcode
+from django.core.files.base import ContentFile
+from io import BytesIO
 
-# ------- Get All Product --------------
+
+def generate_qr_code(product):
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    data = f"name:{product.name}\n location:{product.location}\n beds:{product.beds} beds, bathrooms: {product.bathrooms} baths square:\n{product.square} sq. ft.\n{product.state}\n${product.price}"
+    qr.add_data(data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+    return img
+
+
+def save_qr_code(product):
+    if product.qr_code is not None:
+        img = generate_qr_code(product)
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        product.qr_code.save(f'{product.pk}.png',
+                             ContentFile(buffer.getvalue()))
 
 
 class Products(ListCreateAPIView):
@@ -21,16 +41,13 @@ class Products(ListCreateAPIView):
     pagination_class = ProductsPagination
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = ProductFilter
-    queryset = queryset = Product.objects.prefetch_related('amenities').all()
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset
+    queryset = Product.objects.prefetch_related('amenities').all()
 
     def post(self, request, *args, **kwargs):
         serializer = AddProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(added_by=request.user)
+        save_qr_code(serializer.instance)
         return Response({"message": "Product added successfully"}, status=status.HTTP_201_CREATED)
 
 
