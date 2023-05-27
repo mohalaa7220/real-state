@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 import dj_database_url
+from cloudinary.uploader import upload
+import cloudinary
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -294,3 +296,11 @@ JAZZMIN_UI_TWEAKS = {
     "theme": "flatly",
     "dark_mode_theme": "darkly",
 }
+
+
+cloudinary.config(
+    cloud_name="dvm8x5hoj",
+    api_key="822426192475865",
+    api_secret="uHIZLfwelTRkUURkYrjBp-No7_c",
+    secure=True
+)

@@ -17,7 +17,7 @@ class AddProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
-                  'square', 'state', 'price', 'amenities', 'original_image', 'added_by')
+                  'square', 'state', 'price', 'amenities', 'added_by')
 
     # def validate(self, data):
     #     if not data.get('name'):
@@ -52,11 +52,12 @@ class ProductSerializer(serializers.ModelSerializer):
     thumbnail_images = serializers.SerializerMethodField()
     amenities = AmenitySerializer(many=True)
     qr_code_url = serializers.SerializerMethodField()
+    image_url = serializers.URLField(read_only=True)
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
-                  'square', 'state', 'price', 'amenities', 'original_image', 'created', 'updated', 'qr_code_url')
+        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images', 'image_url',
+                  'square', 'state', 'price', 'amenities', 'created', 'updated', 'qr_code_url', 'code_url')
 
     def get_thumbnail_images(self, obj):
         if obj.thumbnail_images:
@@ -77,8 +78,8 @@ class SimpleProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'square', 'state', 'qr_code',
-                  'price', 'amenities', 'original_image', 'created', 'updated')
+        fields = ('id', 'name', 'location', 'description', 'square', 'state', 'qr_code', 'image_url',
+                  'price', 'amenities', 'created', 'updated')
 
 
 class SimpleProductOrderItemSerializer(serializers.ModelSerializer):
@@ -92,7 +93,7 @@ class UpdateProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
-                  'square', 'state', 'price',  'amenities', 'original_image')
+                  'square', 'state', 'price',  'amenities')
 
         def update(self, instance, validated_data):
             instance.__dict__.update(**validated_data)

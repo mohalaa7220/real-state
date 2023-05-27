@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 from django.urls import reverse
+import cloudinary.uploader
 
 
 class Product(models.Model):
@@ -22,9 +23,27 @@ class Product(models.Model):
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+    image_url = models.URLField(blank=True)
+    code_url = models.URLField(blank=True)
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.original_image:
+            response = cloudinary.uploader.upload(self.original_image)
+            self.image_url = response['url']
+
+        if self.qr_code:
+            response = cloudinary.uploader.upload(self.qr_code)
+            self.code_url = response['url']
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.image_url:
+            public_id = self.image_url.split('/')[-1].split('.')[0]
+            cloudinary.uploader.destroy(public_id)
+        super().delete(*args, **kwargs)
 
     @property
     def qr_code_url(self):
