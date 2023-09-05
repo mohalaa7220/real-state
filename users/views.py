@@ -55,7 +55,7 @@ class UserLoginView(APIView):
                 "token": token.key
             })
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class UserProfile(generics.RetrieveUpdateAPIView):

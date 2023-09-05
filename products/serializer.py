@@ -51,26 +51,18 @@ class AddProductSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     thumbnail_images = serializers.SerializerMethodField()
     amenities = AmenitySerializer(many=True)
-    qr_code_url = serializers.SerializerMethodField()
     image_url = serializers.URLField(read_only=True)
 
     class Meta:
         model = Product
         fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images', 'image_url',
-                  'square', 'state', 'price', 'amenities', 'created', 'updated', 'qr_code_url', 'code_url')
+                  'square', 'state', 'price', 'amenities', 'created', 'updated',  'code_url')
 
     def get_thumbnail_images(self, obj):
         if obj.thumbnail_images:
             return obj.thumbnail_images
         else:
             return []
-
-    def get_qr_code_url(self, obj):
-        if obj.qr_code:
-            request = self.context.get('request')
-            if request is not None:
-                return request.build_absolute_uri(obj.qr_code.url)
-        return None
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
