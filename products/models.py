@@ -19,7 +19,6 @@ class Product(models.Model):
     amenities = models.ManyToManyField('Amenities', related_name='amenities')
     original_image = models.ImageField(
         upload_to='images', null=True, blank=True)
-    thumbnail_images = models.JSONField(null=True, blank=True)
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -72,6 +71,7 @@ class BookProduct(models.Model):
         User, blank=True, null=True, related_name='book_user', on_delete=models.CASCADE)
     product = models.ForeignKey(
         Product, blank=True, null=True, related_name='book_product', on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 

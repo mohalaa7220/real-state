@@ -1,6 +1,7 @@
 from .models import Product, Amenities, BookProduct
 from rest_framework import serializers
 from users.serializer import UserSerializer
+from django.db import transaction
 
 
 class AmenitySerializer(serializers.ModelSerializer):
@@ -12,57 +13,30 @@ class AmenitySerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+# ============== Products Serializer =================
 class AddProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+        fields = ('name', 'location', 'description', 'beds', 'bathrooms',
                   'square', 'state', 'price', 'amenities', 'added_by')
 
-    # def validate(self, data):
-    #     if not data.get('name'):
-    #         raise serializers.ValidationError(
-    #             {"message": "Name of Product is required."})
-    #     if not data.get('quantity'):
-    #         raise serializers.ValidationError(
-    #             {"message": "quantity is required."})
-
-    #     if not data.get('price'):
-    #         raise serializers.ValidationError(
-    #             {"message": "price is required."})
-
-    #     if not data.get('description'):
-    #         raise serializers.ValidationError(
-    #             {"message": "description is required."})
-
-    #     return data
-
+    @transaction.atomic
     def create(self, validated_data):
         amenities_data = validated_data.pop('amenities', [])
         product = Product.objects.create(**validated_data)
-        for amenity_data in amenities_data:
-            amenity = Amenities.objects.get(id=amenity_data.id)
-            product.amenities.add(amenity)
-
-        product.save()
+        product.amenities.set(amenities_data)
         return product
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    thumbnail_images = serializers.SerializerMethodField()
     amenities = AmenitySerializer(many=True)
     image_url = serializers.URLField(read_only=True)
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images', 'image_url',
+        fields = ('id', 'name', 'location', 'description', 'beds', 'bathrooms',  'image_url',
                   'square', 'state', 'price', 'amenities', 'created', 'updated',  'code_url')
-
-    def get_thumbnail_images(self, obj):
-        if obj.thumbnail_images:
-            return obj.thumbnail_images
-        else:
-            return []
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -84,7 +58,7 @@ class UpdateProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('name', 'location', 'description', 'beds', 'bathrooms', 'thumbnail_images',
+        fields = ('name', 'location', 'description', 'beds', 'bathrooms',
                   'square', 'state', 'price',  'amenities')
 
         def update(self, instance, validated_data):
@@ -93,6 +67,7 @@ class UpdateProductSerializer(serializers.ModelSerializer):
             return instance
 
 
+# ============== Book Product Serializer =================
 class AddBookProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookProduct
@@ -114,4 +89,4 @@ class BookProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookProduct
         fields = ['id', 'name', 'email', 'message',
-                  'product', 'user', 'created', 'updated']
+                  'product', 'user', 'completed', 'created', 'updated']

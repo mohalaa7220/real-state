@@ -1,14 +1,12 @@
 from .serializer import (
     ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
-from .cursorPagination import (ProductCursorPagination, ProductsPagination)
-from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
+from .cursorPagination import (ProductsPagination, BooksProductsPagination)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import (IsAdminUser, IsAuthenticated)
 from .models import (Product, BookProduct, Amenities)
 from .permissions import IsAdminOrReadOnly
-from rest_framework import status
+from rest_framework import status, generics
 from django_filters import rest_framework as filters
 from .ProductFilter import ProductFilter
 from django.shortcuts import get_object_or_404
@@ -35,7 +33,9 @@ def save_qr_code(product):
                              ContentFile(buffer.getvalue()))
 
 
-class Products(ListCreateAPIView):
+# ==========  add product by admin =========
+# ==========  get products for all users =========
+class Products(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     pagination_class = ProductsPagination
@@ -51,8 +51,9 @@ class Products(ListCreateAPIView):
         return Response({"message": "Product added successfully"}, status=status.HTTP_201_CREATED)
 
 
-# ------- Update - Delete Product --------------
-class UpdateProduct(RetrieveUpdateDestroyAPIView):
+# ==========  get product details for all users =========
+# ------- (update - delete) product by admin --------------
+class UpdateProduct(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductSerializer
     queryset = Product.objects.prefetch_related('amenities').all()
@@ -64,30 +65,12 @@ class UpdateProduct(RetrieveUpdateDestroyAPIView):
         serializer.save()
         return Response({"message": "Product Update successfully"}, status=status.HTTP_202_ACCEPTED)
 
-
-# ------- Get All Product For Admin --------------
-class ProductsUser(ListCreateAPIView):
-    permission_classes = [IsAdminUser]
-    serializer_class = ProductSerializer
-    pagination_class = ProductCursorPagination
-
-    def get_queryset(self):
-        return Product.objects.prefetch_related('amenities').filter(added_by=self.request.user)
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        paginated_queryset = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(paginated_queryset, many=True)
-        return self.get_paginated_response(serializer.data)
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        return Response({"message": "Product deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
-class ProductUserDetails(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdminUser]
-    serializer_class = ProductSerializer
-    queryset = Product.objects.prefetch_related(
-        'amenities').select_related('added_by')
-
-
+# ======== make book for product by user ========
 class AddBookProductView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -101,19 +84,27 @@ class AddBookProductView(APIView):
         return Response({"message": "Your Book Product , we will contact you as soon as possible"})
 
 
-class BookProducts(ListCreateAPIView):
+# ======== return books of products (for admin) ========
+class BookProducts(generics.ListCreateAPIView):
+    pagination_class = ProductsPagination
     permission_classes = [IsAdminUser]
     serializer_class = BookProductSerializer
     queryset = BookProduct.objects.select_related('user', 'product').all()
 
 
-class LastProductView(ListCreateAPIView):
+# ======== return book details of product (get - update - delete) (for admin) ===========
+class BookProducts(generics.RetrieveDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = BookProduct.objects.select_related('user', 'product').all()
+
+
+class LastProductView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
     queryset = queryset = Product.objects.prefetch_related(
         'amenities').order_by('-created')[:6]
 
 
-class AmenitiesView(ListCreateAPIView):
+class AmenitiesView(generics.ListCreateAPIView):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = AmenitySerializer
     queryset = Amenities.objects.all()

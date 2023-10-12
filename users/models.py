@@ -74,4 +74,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} | {self.email}"

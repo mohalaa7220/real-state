@@ -119,7 +119,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
     'default': dj_database_url.parse(
-        'postgres://hm72207220:x0IXJUgi5BeL@ep-throbbing-sea-53327493.us-east-2.aws.neon.tech/neondb',
+        'postgres://ma722072207220:syB9pmnW7KzD@ep-misty-haze-57730606.us-east-2.aws.neon.tech/neondb',
         conn_max_age=600,
         conn_health_checks=True,
     )
