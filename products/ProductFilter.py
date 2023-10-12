@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Product
+from .models import Product, BookProduct
 
 
 class ProductFilter(filters.FilterSet):
@@ -19,3 +19,10 @@ class ProductFilter(filters.FilterSet):
             for amenity in amenities:
                 queryset = queryset.filter(amenities__name=amenity)
         return queryset
+
+
+class BookProductFilter(filters.FilterSet):
+
+    class Meta:
+        model = BookProduct
+        fields = ['completed']

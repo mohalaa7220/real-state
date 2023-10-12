@@ -1,15 +1,13 @@
 from .serializer import (
     ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
 from .cursorPagination import (ProductsPagination, BooksProductsPagination)
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import (IsAdminUser, IsAuthenticated)
 from .models import (Product, BookProduct, Amenities)
 from .permissions import IsAdminOrReadOnly
 from rest_framework import status, generics
 from django_filters import rest_framework as filters
-from .ProductFilter import ProductFilter
-from django.shortcuts import get_object_or_404
+from .ProductFilter import ProductFilter, BookProductFilter
 import qrcode
 from django.core.files.base import ContentFile
 from io import BytesIO
@@ -71,31 +69,44 @@ class UpdateProduct(generics.RetrieveUpdateDestroyAPIView):
 
 
 # ======== make book for product by user ========
-class AddBookProductView(APIView):
+class AddBookProductView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = AddBookProductSerializer
 
     def post(self, request, pk=None):
-        data = request.data
         user = request.user
-        product = get_object_or_404(Product, pk=pk)
-        serializer = AddBookProductSerializer(data=data)
+        if pk != request.data.get('product'):
+            return Response({"message": "product not match"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=user, product=product)
+        serializer.save(user=user)
         return Response({"message": "Your Book Product , we will contact you as soon as possible"})
 
 
 # ======== return books of products (for admin) ========
 class BookProducts(generics.ListCreateAPIView):
-    pagination_class = ProductsPagination
     permission_classes = [IsAdminUser]
+    pagination_class = ProductsPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = BookProductFilter
     serializer_class = BookProductSerializer
     queryset = BookProduct.objects.select_related('user', 'product').all()
 
 
 # ======== return book details of product (get - update - delete) (for admin) ===========
-class BookProducts(generics.RetrieveDestroyAPIView):
+class BookProductDetails(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
+    serializer_class = BookProductSerializer
     queryset = BookProduct.objects.select_related('user', 'product').all()
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        BookProduct.objects.filter(id=instance.id).update(completed=True)
+        return Response({"message": "completed"}, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        return Response({"message": "deleted successfully"}, status=status.HTTP_200_OK)
 
 
 class LastProductView(generics.ListCreateAPIView):

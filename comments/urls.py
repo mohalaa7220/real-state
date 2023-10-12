@@ -4,7 +4,8 @@ from .views import (CommentsView, TestimonialsView,
                     TestimonialsUser, DetailsTestimonialUser)
 
 urlpatterns = [
-    path('<int:pk>', CommentsView.as_view(), name='comments'),
+    path('comments/<int:pk>', CommentsView.as_view(), name='comments'),
+
     path('testimonials/', TestimonialsView.as_view(), name='testimonials'),
     path('testimonials_user/', TestimonialsUser.as_view(),
          name='testimonials_user'),

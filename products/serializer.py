@@ -40,12 +40,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
-    amenities = AmenitySerializer(many=True)
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'location', 'description', 'square', 'state', 'qr_code', 'image_url',
-                  'price', 'amenities', 'created', 'updated')
+        fields = ('id', 'name', 'location', 'square', 'state', 'price')
 
 
 class SimpleProductOrderItemSerializer(serializers.ModelSerializer):
@@ -71,7 +69,19 @@ class UpdateProductSerializer(serializers.ModelSerializer):
 class AddBookProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookProduct
-        fields = ['name', 'email', 'message']
+        fields = ['name', 'email', 'message', 'product']
+
+    def validate(self, data):
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
+        product = data.get('product')
+
+        if not name or not email or not message or not product:
+            raise serializers.ValidationError(
+                {"message": "All fields (name, email, message, product) must be provided"})
+
+        return data
 
     def create(self, validated_data):
         return super().create(validated_data)
@@ -84,9 +94,13 @@ class AddBookProductSerializer(serializers.ModelSerializer):
 
 class BookProductSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
-    user = UserSerializer()
 
     class Meta:
         model = BookProduct
         fields = ['id', 'name', 'email', 'message',
                   'product', 'user', 'completed', 'created', 'updated']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['user'] = instance.user.name
+        return data
