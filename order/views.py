@@ -5,9 +5,10 @@ from .serializer import OrderItemSerializer, SimpleOrderItemSerializer, UserOrde
 from rest_framework.response import Response
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from products.cursorPagination import TenPagination
 
 
-# Create and Return order for user
+# =========== Create and Return order for user ================
 class OrderItemListCreateView(generics.ListCreateAPIView):
     serializer_class = UserOrderItemSerializer
     permission_classes = [IsAuthenticated]
@@ -22,7 +23,7 @@ class OrderItemListCreateView(generics.ListCreateAPIView):
         return Response({'message': "Order created successfully"}, status=status.HTTP_200_OK)
 
 
-# Order Details (get , update , delete)
+# =========== Order Details (get , update , delete) ================
 class OrderDetails(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserOrderItemSerializer
@@ -32,20 +33,29 @@ class OrderDetails(generics.RetrieveUpdateDestroyAPIView):
         return OrderItem.objects.select_related('user').prefetch_related('product').filter(Q(user=self.request.user) & Q(id=pk))
 
 
-# Remove Product From Order
+# =========== Remove Product From Order ================
 class RemoveProductFromOrderView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, order_id, product_id):
+    def delete(self, request, order_id):
+        order_id = request.data.get('order_id')
+        product_id = request.data.get('product_id')
+
+        if not order_id or not product_id:
+            return Response({'message': "order_id and product_id is required"}, status=status.HTTP_200_OK)
+
         order_item = get_object_or_404(OrderItem.objects.select_related(
             'user'), id=order_id, user=request.user)
         product = get_object_or_404(order_item.product.all(), id=product_id)
         order_item.product.remove(product)
-        return Response({'message': f"Product with ID {product.name} removed from order"}, status=status.HTTP_200_OK)
+
+        return Response({'message': f"Product with removed from order"}, status=status.HTTP_200_OK)
 
 
+# =========== Get all orders for admin ================
 class OrderItemAdmin(generics.ListAPIView):
     permission_classes = [IsAdminUser]
+    pagination_class = TenPagination
     serializer_class = SimpleOrderItemSerializer
     queryset = OrderItem.objects.select_related(
         'user').prefetch_related('product').all()

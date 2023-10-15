@@ -1,6 +1,6 @@
 from .serializer import (
     ProductSerializer, AddProductSerializer, UpdateProductSerializer, BookProductSerializer, AmenitySerializer, AddBookProductSerializer)
-from .cursorPagination import (ProductsPagination, BooksProductsPagination)
+from .cursorPagination import (ProductsPagination, TenPagination)
 from rest_framework.response import Response
 from rest_framework.permissions import (IsAdminUser, IsAuthenticated)
 from .models import (Product, BookProduct, Amenities)
