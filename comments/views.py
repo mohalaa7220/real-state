@@ -5,6 +5,7 @@ from .models import Product, Testimonials
 from .serializer import CommentSerializer, TestimonialsSerializer
 from django.shortcuts import get_object_or_404
 from project.serializer_error import serializer_error
+from project.permissions import IsCommentOwner
 from .models import Comments
 
 
@@ -26,18 +27,20 @@ class CommentsView(generics.ListCreateAPIView):
 
 # ========= (update , get,delete) comment ==========
 class CommentDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsCommentOwner]
     serializer_class = CommentSerializer
+    queryset = Comments.objects.select_related('product', 'user').all()
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            self.get_object(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        return Response({"message": "Comment added successfully"}, status=status.HTTP_201_CREATED)
+        serializer.save(user=self.request.user)
+        return Response({"message": "Comment updated successfully"}, status=status.HTTP_200_OK)
 
-    def get_queryset(self):
-        product = get_object_or_404(Product, pk=self.kwargs.get('pk'))
-        return product.comments_product.select_related('product', 'user').all()
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        return Response({"message": "Comment deleted successfully"}, status=status.HTTP_200_OK)
 
 
 class TestimonialsView(generics.ListCreateAPIView):
