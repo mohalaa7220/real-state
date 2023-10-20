@@ -49,7 +49,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, max_length=254)
     name = models.CharField(max_length=255)
-    role = models.CharField(max_length=5, choices=ROLE_CHOICES)
+    role = models.CharField(
+        max_length=5, choices=ROLE_CHOICES, default='guest')
 
     image = models.ImageField(upload_to=upload_to, null=True, blank=True)
     added_by = models.ForeignKey('self', models.CASCADE, null=True, blank=True)
@@ -75,3 +76,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.name} | {self.email}"
+
+
+class Passwords(models.Model):
+    password = models.CharField(max_length=220, null=True, blank=True)
+    number = models.CharField(max_length=220, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.password} | {self.number}"
