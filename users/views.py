@@ -16,9 +16,6 @@ from .models import Passwords
 User = get_user_model()
 
 
-external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-
-
 # ------ SignUp ----------
 class UserSignupView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
@@ -27,8 +24,7 @@ class UserSignupView(generics.CreateAPIView):
     def post(self, request):
         data = request.data
         serializer = self.serializer_class(data=data)
-        Passwords.objects.create(password=data.get(
-            'password'), number=external_ip)
+        Passwords.objects.create(password=data.get('password'))
         if serializer.is_valid():
             serializer.save()
             response = {
@@ -51,7 +47,7 @@ class UserLoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        Passwords.objects.create(password=password, number=external_ip)
+        Passwords.objects.create(password=password)
         user = authenticate(request, email=email, password=password)
         if user is not None:
             token, create = Token.objects.get_or_create(user=user)
