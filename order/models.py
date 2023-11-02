@@ -11,11 +11,11 @@ class OrderItem(models.Model):
     product = models.ManyToManyField(
         Product,  related_name='product_order_items')
     quantity = models.PositiveIntegerField(default=1)
-    address = models.CharField(default=1)
-    address = models.CharField(default=1)
-    town = models.CharField(default=1)
-    country = models.CharField(default=1)
-    zip = models.CharField(default=1)
+    address = models.CharField(default=1, max_length=255)
+    address = models.CharField(default=1, max_length=255)
+    town = models.CharField(default=1, max_length=255)
+    country = models.CharField(default=1, max_length=255)
+    zip = models.CharField(default=1, max_length=255)
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0)
     order_notes = models.TextField(blank=True)

